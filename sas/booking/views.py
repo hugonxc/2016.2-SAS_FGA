@@ -18,4 +18,5 @@ def new_user(request):
     form = UserForm()
     return render(request, 'booking/newUser.html', {'form_user':form})
 
-
+def delete_user(request, key):
+    User.objects.get(key = key).delete()
