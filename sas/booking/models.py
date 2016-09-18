@@ -32,9 +32,9 @@ class UserProfile(models.Model):
 class Place(models.Model):
 	name = models.CharField(max_length=50)
 	capacity = models.CharField(max_length=250)
-	is_laboratory = models.BooleanField()
 	place_id = models.CharField(max_length=7)
-	location = models.CharField(max_length=50)
+	localization = models.CharField(max_length=50)
+	is_laboratory = models.BooleanField()
 
 	def save(self, *args, **kwargs):
 		super(Place, self).save(*args, **kwargs)

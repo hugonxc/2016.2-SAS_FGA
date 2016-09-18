@@ -116,9 +116,6 @@ class BookingForm(ModelForm):
 	capacity = forms.CharField(
 					label=_('Capacidade:'),
 					widget=forms.TextInput(attrs={'placeholder': ''}))
-	is_laboratory = forms.BooleanField(
-					label=_('É laboratório:'),
-					widget=forms.widgets.CheckboxInput)
 
 	def save(self, force_insert=False, force_update=False, commit=True):
 		booking = super(BookingForm, self).save(commit=False)
@@ -131,13 +128,10 @@ class BookingForm(ModelForm):
 		booking.name = self.cleaned_data.get('name')
 		booking_place = Place()
 		booking_place.name = self.cleaned_data.get('place_name')
+		booking_place.is_laboratory = True
 		booking_place.capacity = self.cleaned_data.get('capacity')
 		booking_place.place_id = self.cleaned_data.get('place_id')
 		booking_place.localization = self.cleaned_data.get('localization')
-		if is_laboratory.check_test(True):
-			booking_place.is_laboratory = True
-		else:
-			booking_place.is_laboratory = False
 		booking_place.save()
 		booking.place = booking_place
 
