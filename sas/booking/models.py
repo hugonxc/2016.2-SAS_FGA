@@ -34,7 +34,7 @@ class Place(models.Model):
 	capacity = models.CharField(max_length=250)
 	is_laboratory = models.BooleanField()
 	place_id = models.CharField(max_length=7)
-	localization = models.CharField(max_length=50)
+	location = models.CharField(max_length=50)
 
 	def save(self, *args, **kwargs):
 		super(Place, self).save(*args, **kwargs)

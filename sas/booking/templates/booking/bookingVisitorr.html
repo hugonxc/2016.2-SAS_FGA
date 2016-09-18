@@ -37,6 +37,14 @@
                                 <label class="control-label">Espaço:</label>
                                 <input class="form-control" type="password" name="renew-password" id="renew-password">
                             </div>
+							<div>
+								<label class="control-label">Capacidade:</label>
+								<input class="form-control" type="password" name="renew-password" id="renew-password">
+							</div>
+							<div class="control-group">
+								<label class="control-label">Place id:</label>
+								<input class="form-control" type="password" name="renew-password" id="renew-password">
+							</div>
                             <div class="control-group">
                                 <label class="control-label">Data de Início:</label>
                                 <input class="form-control" type="password" name="renew-password" id="renew-password">
@@ -56,6 +64,10 @@
                             <div class="control-group">
                                 <label class="control-label">Dias da Semana:</label>
                             </div>
+							<input type="radio" name="type" value="laboratory">É laboratório:
+							{% buttons %}
+								<button type="submit" class="btn btn-sucess btn-block">Efetuar Reserva</button>
+							{% endbuttons %}
                         </form>
                     </div>
                 </div>

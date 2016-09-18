@@ -91,7 +91,7 @@ def new_booking(request):
         if request.method == "POST":
             form_booking = BookingForm(request.POST, Booking)
             if not(form_booking.is_valid()):
-	               return render(request, 'booking/bokkingVisitor.html', {'form_booking':form_booking})
+	               return render(request, 'booking/bookingVisitor.html', {'form_booking':form_booking})
             else:
                 booking = form_booking.save(commit=False)
                 booking.user = request.user
@@ -99,7 +99,7 @@ def new_booking(request):
                 return render(request, 'booking/index.html', {})
         else:
             form_booking = BookingForm()
-            return render(request, 'booking/bokkingVisitor.html', {'form_booking':form_booking})
+            return render(request, 'booking/bookingVisitor.html', {'form_booking':form_booking})
 
     else:
         form_booking = BookingForm()

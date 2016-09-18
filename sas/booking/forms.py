@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate
+from datetime import date
 from django.utils import timezone
 import datetime
 
@@ -106,6 +107,18 @@ class BookingForm(ModelForm):
 	place_name = forms.CharField(
 					label=_('Sala:'),
 					widget=forms.TextInput(attrs={'placeholder': ''}))
+	localization = forms.CharField(
+					label=_('Predio:'),
+					widget=forms.TextInput(attrs={'placeholder': ''}))
+	place_id = forms.CharField(
+					label=_('Place id:'),
+					widget=forms.TextInput(attrs={'placeholder': ''}))
+	capacity = forms.CharField(
+					label=_('Capacidade:'),
+					widget=forms.TextInput(attrs={'placeholder': ''}))
+	is_laboratory = forms.BooleanField(
+					label=_('É laboratório:'),
+					widget=forms.widgets.CheckboxInput)
 
 	def save(self, force_insert=False, force_update=False, commit=True):
 		booking = super(BookingForm, self).save(commit=False)
@@ -118,10 +131,13 @@ class BookingForm(ModelForm):
 		booking.name = self.cleaned_data.get('name')
 		booking_place = Place()
 		booking_place.name = self.cleaned_data.get('place_name')
-		booking_place.capacity = '60'
-		booking_place.place_id = '60'
-		booking_place.localization = 'uac'
-		booking_place.is_laboratory = True
+		booking_place.capacity = self.cleaned_data.get('capacity')
+		booking_place.place_id = self.cleaned_data.get('place_id')
+		booking_place.localization = self.cleaned_data.get('localization')
+		if is_laboratory.check_test(True):
+			booking_place.is_laboratory = True
+		else:
+			booking_place.is_laboratory = False
 		booking_place.save()
 		booking.place = booking_place
 
