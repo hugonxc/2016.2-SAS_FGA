@@ -41,13 +41,16 @@
                             <div class="well">
                                 <form id="loginForm" method="POST" action="/user/login/">
                                     {% csrf_token %}
-									{% bootstrap_form form %}
+                                    {% for field in form %}
+                        {% bootstrap_field field %}
+                        {% bootstrap_form_errors form %}
+                    {% endfor %}
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="remember" id="remember"> Lembrar dados
                                         </label>
                                     </div>
-									{% bootstrap_form_errors form %}
+
                                     {% buttons %}
                                         <button type="submit" class="btn btn-success btn-block">Entrar</button>
                                     {% endbuttons %}
