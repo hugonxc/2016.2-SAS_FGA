@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext as _
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import UserForm, NewUserForm, LoginForm, EditUserForm
+from .forms import UserForm, NewUserForm, LoginForm, EditUserForm, BookingForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import UserProfile, Booking
@@ -55,19 +55,21 @@ def edit_user(request):
         form = EditUserForm(initial=initial, instance=request.user.profile_user)
         return render(request, 'booking/editUser.html', {'form_user': form})
 
-def login_user(request) :
-    if request.method == "POST":
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            if user is not None:
-                login ( request , user) ;
-                return render (request ,'booking/myIndex.html',{})
-            else:
-                return render (request,'booking/index.html',{'form':form})
-    else:
-        form = LoginForm()
-        return render (request ,'booking/index.html',{'form':form})
+def login_user(request):
+	if request.method == "POST":
+		form = LoginForm(request.POST)
+		if form.is_valid():
+			user = form.save()
+			if user is not None:
+				login (request, user)
+				return render(request,'booking/myIndex.html',{})
+			else:
+				return render(request,'booking/index.html',{'form':form})
+		else:
+				return render(request,'booking/index.html',{'form':form})
+	else:
+		form = LoginForm()
+		return render(request,'booking/index.html',{'form':form})
 
 def logout_user(request):
     logout(request)
@@ -89,7 +91,7 @@ def new_booking(request):
         if request.method == "POST":
             form_booking = BookingForm(request.POST, Booking)
             if not(form_booking.is_valid()):
-	               return render(request, 'booking/newBooking.html', {'form_booking':form_booking})
+	               return render(request, 'booking/bokkingVisitor.html', {'form_booking':form_booking})
             else:
                 booking = form_booking.save(commit=False)
                 booking.user = request.user
@@ -97,7 +99,7 @@ def new_booking(request):
                 return render(request, 'booking/index.html', {})
         else:
             form_booking = BookingForm()
-            return render(request, 'booking/newBooking.html', {'form_booking':form_booking})
+            return render(request, 'booking/bokkingVisitor.html', {'form_booking':form_booking})
 
     else:
         form_booking = BookingForm()
