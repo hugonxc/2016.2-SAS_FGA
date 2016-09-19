@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import UserForm, NewUserForm, LoginForm, EditUserForm, BookingForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .models import UserProfile, Booking
+from .models import UserProfile, Booking, Place
 
 
 def index(request):
@@ -87,16 +87,17 @@ def delete_user(request):
 
 
 def new_booking(request):
+    Place.all_places_import()
     if request.user.is_authenticated():
         if request.method == "POST":
             form_booking = BookingForm(request.POST, Booking)
-            if not(form_booking.is_valid()):
-	               return render(request, 'booking/bookingVisitor.html', {'form_booking':form_booking})
+            if (form_booking.is_valid()):
+                return render(request, 'booking/bookingVisitor.html', {'form_booking':form_booking})
             else:
                 booking = form_booking.save(commit=False)
                 booking.user = request.user
                 form_booking.save()
-                return render(request, 'booking/index.html', {})
+                return render(request, 'booking/index.html', {'form_booking':form_booking})
         else:
             form_booking = BookingForm()
             return render(request, 'booking/bookingVisitor.html', {'form_booking':form_booking})

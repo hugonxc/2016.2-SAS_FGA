@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 import datetime
+import csv
 
 CATEGORY = (('1', _('Student')),('2', _('Teaching Staff')), ('3', _('Employees')))
 
@@ -38,6 +39,13 @@ class Place(models.Model):
 
 	def save(self, *args, **kwargs):
 		super(Place, self).save(*args, **kwargs)
+	def all_places_import():
+		Place.objects.all().delete()
+		fields = ['name', 'location', 'capacity', 'place_id', 'is_laboratory']
+		for row in csv.reader(open('places.csv')):
+			Place.objects.create(**dict(zip(fields, row)))
+	def __str__(self):
+		return self.name
 
 class BookTime(models.Model):
 	start_hour = models.TimeField(null=False, blank=False)
@@ -51,9 +59,8 @@ class BookTime(models.Model):
 class Booking(models.Model):
 	user = models.ForeignKey(User, related_name="bookings", on_delete=models.CASCADE)
 	time = models.ManyToManyField(BookTime, related_name="booking_time")
-	place = models.ForeignKey(Place, related_name="booking_place") 
+	place = models.ForeignKey(Place, related_name="booking_place")
 	name = models.CharField(max_length=50)
 
 	def save(self, *args, **kwargs):
 		super(Booking, self).save(*args, **kwargs)
-

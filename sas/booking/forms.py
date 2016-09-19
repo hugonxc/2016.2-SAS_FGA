@@ -19,8 +19,8 @@ class LoginForm(ModelForm):
 					widget=forms.PasswordInput(attrs={'placeholder': ''}))
 
 	def save(self, force_insert=False, force_update=False, commit=True):
-		username = self.cleaned_data.get("email")	
-		password = self.cleaned_data.get("password")	
+		username = self.cleaned_data.get("email")
+		password = self.cleaned_data.get("password")
 		user = authenticate(username=username, password=password)
 		if user is None:
 			self.add_error('password', _('Email or Password does not match'))
@@ -72,7 +72,7 @@ class UserForm(ModelForm):
 				  'category', 'email', 'password', 'repeat_password']
 
 class EditUserForm(UserForm):
-	
+
 	class Meta:
 		model = UserProfile
 		fields = ['name', 'registration_number',
@@ -85,7 +85,7 @@ class NewUserForm(UserForm):
 		password1 = cleaned_data.get('password')
 		password2 = cleaned_data.get('repeat_password')
 		if password1 and password2 and password1 != password2:
-			self.add_error('password', _('Passwords do not match'))	
+			self.add_error('password', _('Passwords do not match'))
 
 
 class BookingForm(ModelForm):
@@ -104,21 +104,8 @@ class BookingForm(ModelForm):
 	end_date = forms.DateField(
 					label=_('Data final:'),
 					widget=forms.widgets.DateInput)
-	place_name = forms.CharField(
-					label=_('Sala:'),
-					widget=forms.TextInput(attrs={'placeholder': ''}))
-	localization = forms.CharField(
-					label=_('Predio:'),
-					widget=forms.TextInput(attrs={'placeholder': ''}))
-	place_id = forms.CharField(
-					label=_('Place id:'),
-					widget=forms.TextInput(attrs={'placeholder': ''}))
-	capacity = forms.CharField(
-					label=_('Capacidade:'),
-					widget=forms.TextInput(attrs={'placeholder': ''}))
-	is_laboratory = forms.BooleanField(
-					label=_('É laboratório:'),
-					widget=forms.widgets.CheckboxInput)
+	place_field = forms.ModelChoiceField(
+					queryset=Place.objects.all().order_by('name'))
 
 	def save(self, force_insert=False, force_update=False, commit=True):
 		booking = super(BookingForm, self).save(commit=False)
@@ -129,17 +116,7 @@ class BookingForm(ModelForm):
 		booking_time.end_date = self.cleaned_data.get('end_date')
 		booking_time.save()
 		booking.name = self.cleaned_data.get('name')
-		booking_place = Place()
-		booking_place.name = self.cleaned_data.get('place_name')
-		booking_place.capacity = self.cleaned_data.get('capacity')
-		booking_place.place_id = self.cleaned_data.get('place_id')
-		booking_place.localization = self.cleaned_data.get('localization')
-		if is_laboratory.check_test(True):
-			booking_place.is_laboratory = True
-		else:
-			booking_place.is_laboratory = False
-		booking_place.save()
-		booking.place = booking_place
+		booking.place = self.cleaned_data.get('place_field')
 
 		# do custom stuff
 		if commit:
@@ -177,6 +154,5 @@ class BookingForm(ModelForm):
 
 	class Meta:
 		model = Booking
-		fields = ['name', 'place_name',
+		fields = ['name', 'place_field',
 				  'start_hour', 'end_hour', 'start_date', 'end_date']
-
