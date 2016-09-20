@@ -8,7 +8,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate
 from datetime import date, time
 from django.utils import timezone
-from datetime import date, datetime
+from datetime import date, datetime, time
 
 class LoginForm(ModelForm):
 	email = forms.CharField(
@@ -136,29 +136,46 @@ class BookingForm(ModelForm):
 	def clean(self):
 		cleaned_data = super(BookingForm, self).clean()
 		today = date.today()
-		now = datetime.now()
+		now = datetime.now().time()
 		start_date = cleaned_data.get('start_date')
 		end_date = cleaned_data.get('end_date')
 		start_hour = cleaned_data.get('start_hour')
 		end_hour = cleaned_data.get('end_hour')
-		if today > start_date:
-			msg = 'A data de inicio deve ser posterior a data atual.'
-			self.add_error('start_date', msg)
-		if today > end_date:
-			msg = 'A data final deve ser posterior a data atual.'
-			self.add_error('end_date', msg)
-		if end_hour <= start_hour:
-			msg = 'A hora final deve ser posterior a hora inicial.'
-			self.add_error('end_hour', msg)
-		if today == start_date and today == end_date and now > start_hour:
-			msg = 'A hora de inicio deve ser posterior a hora atual para uma reserva hoje'
-			self.add_error('start_hour', msg)
-		if today == start_date and today == end_date and now > end_hour:
-			msg = 'A hora final deve ser posterior a hora atual para uma reserva hoje'
-			self.add_error('end_hour', msg)
-		elif end_date < start_date:
-			msg = 'A data final deve ser posterior a data de inicio.'
-			self.add_error('end_date', msg)
+		try:
+			if today > start_date:
+				msg = 'A data de inicio deve ser posterior a data atual.'
+				self.add_error('start_date', msg)
+		except TypeError as TypeErrorException:
+			self.add_error('start_date', '')
+		else:
+			try:
+				if today == start_date and today == end_date and now > start_hour:
+					msg = 'A hora de inicio deve ser posterior a hora atual para uma reserva hoje.'
+					self.add_error('start_hour', msg)
+			except TypeError as TypeErrorException3:
+				self.add_error('start_hour', '')
+			else:
+				try:
+					if today == start_date and today == end_date and now > end_hour:
+						msg = 'A hora final deve ser posterior a hora atual para uma reserva hoje.'
+						self.add_error('end_hour', msg)
+					elif end_date < start_date:
+						msg = 'A data final deve ser posterior a data de inicio.'
+						self.add_error('end_date', msg)
+				except TypeError as TypeErrorException:
+					self.add_error('end_hour', '')
+				else:
+					if end_hour <= start_hour:
+						msg = 'A hora final deve ser posterior a hora inicial.'
+						self.add_error('end_hour', msg)
+		finally:
+			try:
+				if today > end_date:
+					msg = 'A data final deve ser posterior a data atual.'
+					self.add_error('end_date', msg)
+			except TypeError as TypeErrorException2:
+				self.add_error('end_date', '')
+
 
 	class Meta:
 		model = Booking
