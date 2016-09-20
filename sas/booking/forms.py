@@ -6,8 +6,9 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth import authenticate
+from datetime import date, time
 from django.utils import timezone
-from datetime import date
+from datetime import date, datetime
 
 class LoginForm(ModelForm):
 	email = forms.CharField(
@@ -18,8 +19,8 @@ class LoginForm(ModelForm):
 					widget=forms.PasswordInput(attrs={'placeholder': ''}))
 
 	def save(self, force_insert=False, force_update=False, commit=True):
-		username = self.cleaned_data.get("email")	
-		password = self.cleaned_data.get("password")	
+		username = self.cleaned_data.get("email")
+		password = self.cleaned_data.get("password")
 		user = authenticate(username=username, password=password)
 		if user is None:
 			self.add_error('password', _('Email or Password does not match'))
@@ -71,7 +72,7 @@ class UserForm(ModelForm):
 				  'category', 'email', 'password', 'repeat_password']
 
 class EditUserForm(UserForm):
-	
+
 	class Meta:
 		model = UserProfile
 		fields = ['name', 'registration_number',
@@ -84,7 +85,7 @@ class NewUserForm(UserForm):
 		password1 = cleaned_data.get('password')
 		password2 = cleaned_data.get('repeat_password')
 		if password1 and password2 and password1 != password2:
-			self.add_error('password', _('Passwords do not match'))	
+			self.add_error('password', _('Passwords do not match'))
 
 
 class BookingForm(ModelForm):
@@ -106,6 +107,9 @@ class BookingForm(ModelForm):
 	place_name = forms.CharField(
 					label=_('Sala:'),
 					widget=forms.TextInput(attrs={'placeholder': ''}))
+	localization = forms.CharField(
+					label=_('Predio:'),
+					widget=forms.TextInput(attrs={'placeholder': ''}))
 
 	def save(self, force_insert=False, force_update=False, commit=True):
 		booking = super(BookingForm, self).save(commit=False)
@@ -118,10 +122,7 @@ class BookingForm(ModelForm):
 		booking.name = self.cleaned_data.get('name')
 		booking_place = Place()
 		booking_place.name = self.cleaned_data.get('place_name')
-		booking_place.capacity = '60'
-		booking_place.place_id = '60'
-		booking_place.localization = 'uac'
-		booking_place.is_laboratory = True
+		booking_place.localization = self.cleaned_data.get('localization')
 		booking_place.save()
 		booking.place = booking_place
 
@@ -134,33 +135,32 @@ class BookingForm(ModelForm):
 
 	def clean(self):
 		cleaned_data = super(BookingForm, self).clean()
-		if date.today() > cleaned_data.get('start_date'):
+		today = date.today()
+		now = datetime.now()
+		start_date = cleaned_data.get('start_date')
+		end_date = cleaned_data.get('end_date')
+		start_hour = cleaned_data.get('start_hour')
+		end_hour = cleaned_data.get('end_hour')
+		if today > start_date:
 			msg = 'A data de inicio deve ser posterior a data atual.'
 			self.add_error('start_date', msg)
-			raise forms.ValidationError(msg)
-		if date.today() > cleaned_data.get('end_date'):
+		if today > end_date:
 			msg = 'A data final deve ser posterior a data atual.'
 			self.add_error('end_date', msg)
-			raise forms.ValidationError(msg)
-		elif cleaned_data.get('end_date') < cleaned_data.get('start_date'):
-			msg = 'A data final deve ser posterior a data de inicio.'
-			self.add_error('end_date', msg)
-			raise forms.ValidationError(msg)
-		if cleaned_data.get('end_hour') <= cleaned_data.get('start_hour'):
+		if end_hour <= start_hour:
 			msg = 'A hora final deve ser posterior a hora inicial.'
 			self.add_error('end_hour', msg)
-			raise forms.ValidationError(msg)
-		if date.today() == cleaned_data.get('start_date') and date.today() == cleaned_data.get('end_date') and datetime.now() > cleaned_data.get('start_hour'):
+		if today == start_date and today == end_date and now > start_hour:
 			msg = 'A hora de inicio deve ser posterior a hora atual para uma reserva hoje'
 			self.add_error('start_hour', msg)
-			raise forms.ValidationError(msg)
-		if date.today() == cleaned_data.get('start_date') and date.today() == cleaned_data.get('end_date') and datetime.now() > cleaned_data.get('end_hour'):
+		if today == start_date and today == end_date and now > end_hour:
 			msg = 'A hora final deve ser posterior a hora atual para uma reserva hoje'
 			self.add_error('end_hour', msg)
-			raise forms.ValidationError(msg)
+		elif end_date < start_date:
+			msg = 'A data final deve ser posterior a data de inicio.'
+			self.add_error('end_date', msg)
 
 	class Meta:
 		model = Booking
 		fields = ['name', 'place_name',
 				  'start_hour', 'end_hour', 'start_date', 'end_date']
-

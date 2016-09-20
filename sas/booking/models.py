@@ -32,7 +32,7 @@ class UserProfile(models.Model):
 class Place(models.Model):
 	name = models.CharField(max_length=50)
 	capacity = models.CharField(max_length=250)
-	is_laboratory = models.BooleanField()
+	#is_laboratory = models.BooleanField()
 	place_id = models.CharField(max_length=7)
 	localization = models.CharField(max_length=50)
 
@@ -51,9 +51,8 @@ class BookTime(models.Model):
 class Booking(models.Model):
 	user = models.ForeignKey(User, related_name="bookings", on_delete=models.CASCADE)
 	time = models.ManyToManyField(BookTime, related_name="booking_time")
-	place = models.ForeignKey(Place, related_name="booking_place") 
+	place = models.ForeignKey(Place, related_name="booking_place")
 	name = models.CharField(max_length=50)
 
 	def save(self, *args, **kwargs):
 		super(Booking, self).save(*args, **kwargs)
-
