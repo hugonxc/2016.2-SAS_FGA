@@ -4,6 +4,8 @@ from .forms import UserForm, NewUserForm, LoginForm, EditUserForm, BookingForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import UserProfile, Booking
+from django.http import HttpResponse
+import json
 
 
 
@@ -86,23 +88,28 @@ def new_booking(request):
     if request.user.is_authenticated():
         if request.method == "POST":
             form_booking = BookingForm(request.POST, Booking)
-            if not(form_booking.is_valid()):
-	               return render(request, 'booking/newBooking.html', {'form_booking':form_booking})
-            else:
+            if form_booking.is_valid():
                 booking = form_booking.save(commit=False)
                 booking.user = request.user
                 form_booking.save()
-
                 form = LoginForm()
                 return render(request, 'booking/index.html', {'form':form})
+            else:
+                return render(request, 'booking/newBooking.html', {'form_booking':form_booking})
         else:
             form_booking = BookingForm()
             return render(request, 'booking/newBooking.html', {'form_booking':form_booking})
 
     else:
-        form_booking = BookingForm()
         form = LoginForm()
         return render(request, 'booking/index.html', {'form':form})
+
+def check_new_booking(request):
+    form_booking=BookingForm(request.POST,Booking)
+    if form_booking.is_valid():
+        return HttpResponse(json.dumps({'ok':1,'errors':''}))
+    else:
+        return HttpResponse(json.dumps({'ok':0,'errors':form_booking.errors}    ))
 
 def search_booking(request):
     if request.user.is_authenticated():

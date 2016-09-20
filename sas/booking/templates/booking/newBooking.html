@@ -1,10 +1,95 @@
+{% extends 'booking/base.html' %}
 {% block content %}
 {% load bootstrap3 %}
 <h2>Efetue reserva!</h2>
-<form method='POST'>
+<form class="lalala" method='POST'>
     {% csrf_token %}
     {% bootstrap_form form_booking %}
     {% buttons %}
-        <button type="submit">Ok!</button>
+        <button id="button-sub" hidden></button>
     {% endbuttons %}
+</form>
+
+{% buttons %}
+  <button onclick="loadModal()">CHECK</button>
+{% endbuttons %}
+<!-- como usar a modal do django-bootstrap3 -->
+<div id='a'>
+  Nome: <spam id="id_name_modal"></spam> <br>
+  Sala: <spam id="id_place_modal"></spam> <br>
+  Predio: <spam id="id_location_modal"></spam> <br>
+  <button onclick='confirmation(true)'>ok</button><button onclick='confirmation(false)'>cancelar</button>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+
+  function loadModal(){
+      form = $('form')[0];
+      //console.log($(form).serialize())
+      $.ajax({
+        type: form.method,
+        url: '/user/check/',
+        data: $(form).serialize(),
+        context: form,
+        success: function(data, status) {
+          data=JSON.parse(data);
+          if(data.ok===1){
+              cleanErrors();
+              mountModal();
+          }else{
+            mountErrors(data.errors);
+            console.log(data.errors)
+          }
+
+        },
+        error: function(e){
+          console.log(e)
+        }
+        });
+
+  }
+  function cleanErrors(){
+    var elements = $('.form-group')
+    elements.removeClass('has-error');
+    elements.addClass('has-success');
+    $('.help-block').remove();
+  }
+  function mountErrors(errors){
+//l=errors;
+  cleanErrors();
+  var elements = $('.form-group')
+    for(var i=0; i<elements.length; i++){
+      //console.log(elements[i].children[1])
+      var name_element = undefined;
+      if(elements[i].children[1]){
+        name_element=elements[i].children[1].name;
+        console.log(name_element)
+      }
+      if( errors[name_element] != undefined){
+        $(elements[i]).addClass('has-error');
+        $(elements[i]).removeClass('has-success');
+        elements[i].innerHTML+="<span class='help-block'>"+errors[name_element]+"</span>"
+      }
+    }
+
+  }
+  function mountModal(){
+    $('#a').show();
+    var name = $("#id_name")[0].value;
+    var room = $("#id_place_name")[0].value;
+    var location = $('#id_localization')[0].value;
+    $("#id_place_modal")[0].textContent=room;
+    $("#id_name_modal")[0].textContent=name;
+    $('#id_location_modal')[0].textContent=location;
+  }
+  function confirmation(conf){
+    if(conf==true){
+      $('#button-sub')[0].click();
+    }else{
+      $('#a').hide();
+      }
+  }
+</script>
 {% endblock %}
